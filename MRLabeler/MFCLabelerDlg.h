@@ -35,7 +35,7 @@ public:
 	void UpdateView();
 	void UpdateTrackers();
 	void LoadAnnotationFile(const string xmlannopath);
-	bool SaveAnnotationFile(const string xmlannopath);
+	bool SaveAnnotationFile(const string annotationname);
 	void ConvertRel2Tracker();
 	DatasetConfig voc;
 	CRect dlg_rect;
@@ -53,6 +53,10 @@ public:
 
 	double m_zoomratio = 1.0f;
 	cv::Point2f m_ptRoomCenter;
+	bool m_bModified = true;
+	bool m_bSaveEdit=true;
+	const string NewAnnotationdir = "../MRAnnotation";
+	void CheckAndSaveAnnotation();
 // й╣ож
 protected:
 	HICON m_hIcon;

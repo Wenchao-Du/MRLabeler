@@ -2,7 +2,7 @@
 #include "pugixml.hpp"
 #include "iostream"
 #include "mrdir.h"
-const string defaultdatasetpath = "../voc.xml";
+const string defaultdatasetpath = "../mrconfig.xml";
 
 int DatasetConfig::load_file(const string configpath)
 {
@@ -18,6 +18,8 @@ int DatasetConfig::load_file(const string configpath)
 
 	currentlabelingclass = rootnode.child("currentlabelingclass").text().get();
 	lastlabeledindex = rootnode.child("lastlabeledindex").text().as_int();
+	bsavexml = rootnode.child("bsavexml").text().as_bool();
+	bsavetxt = rootnode.child("bsavetxt").text().as_bool();
 	pugi::xml_node classesnode = rootnode.child("classes");
 	classes.clear();
 
@@ -37,9 +39,10 @@ void DatasetConfig::save_file(const string configpath)
 	rootnode.append_child("imagedir").text().set(imagedir.c_str());
 	rootnode.append_child("annotationdir").text().set(annotationdir.c_str());
 	rootnode.append_child("labelsdir").text().set(labelsdir.c_str());
-
 	rootnode.append_child("currentlabelingclass").text().set(currentlabelingclass.c_str());
 	rootnode.append_child("lastlabeledindex").text().set(lastlabeledindex);
+	rootnode.append_child("bsavexml").text().set(bsavexml);
+	rootnode.append_child("bsavetxt").text().set(bsavetxt);
 	pugi::xml_node classesnode = rootnode.append_child("classes");
 	for (int i = 0; i < classes.size(); i++)
 	{
@@ -70,6 +73,8 @@ void DatasetConfig::vocinit()
 		"boat", "bottle", "bus", "car", "cat", "chair", "cow",
 		"diningtable", "dog", "horse", "motorbike", "person",
 		"pottedplant", "sheep", "sofa", "train", "tvmonitor" };
+	bsavexml = true;
+	bsavetxt = true;
 	classes.clear();
 	for (int i = 0; i < 20; i++)
 	{

@@ -240,9 +240,20 @@ void CMFCLabelerDlg::OnBnClickedButtonPrev()
 	// TODO:  在此添加控件通知处理程序代码
 	if (m_files.size() > 0)
 	{
+		CheckAndSaveAnnotation();
 		m_imgindex = (m_imgindex - 1 + m_files.size()) % m_files.size();
 		ShowImageOfIndex();
 	}
+}
+
+void CMFCLabelerDlg::CheckAndSaveAnnotation()
+{
+	if (m_bSaveEdit&&m_bModified)
+	{
+		string annotationname =  m_files[m_imgindex].substr(0,m_files[m_imgindex].length()-4);
+		SaveAnnotationFile(annotationname);
+	}
+//	m_bModified = false;
 }
 
 void CMFCLabelerDlg::OnBnClickedButtonNext()
@@ -250,8 +261,7 @@ void CMFCLabelerDlg::OnBnClickedButtonNext()
 	// TODO:  在此添加控件通知处理程序代码
 	if (m_files.size() > 0)
 	{
-		string xmlannotationpath = "anno.xml";
-		SaveAnnotationFile(xmlannotationpath);
+		CheckAndSaveAnnotation();
 		m_imgindex = (m_imgindex + 1) % m_files.size();
 		ShowImageOfIndex();
 	}
@@ -265,6 +275,7 @@ void CMFCLabelerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (!m_bDragMode)
 	{
+		m_bModified = true;
 		CColorRectTracker tracker;
 		tracker.m_strName = m_currentselectedclassname;
 		tracker.m_rect.SetRect(0, 0, 0, 0);
@@ -303,15 +314,11 @@ void CMFCLabelerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				rr.ptEnd.y = tracker.m_rect.bottom*1.0 / m_Picrect.Height();
 				m_relrects.push_back(rr);
 				UpdateView();
+				m_bDragMode = true;
 				return;
 			}
 		}
 	}
-// 	m_bDrawing = true;
-// 	m_ptRelativeBegin = cv::Point2f(point.x*1.0 / m_Picrect.Width(), point.y *1.0 / m_Picrect.Height());
-// 	m_ptRelativeEnd = m_ptRelativeBegin;
-//	string pos = "X,Y:" + int2string((int)(m_ptRelativeEnd.x*m_Picrect.Width())) + "," + int2string((int)(m_ptRelativeEnd.y*m_Picrect.Height()));
-//	GetDlgItem(IDC_POS)->SetWindowText(ANSIToUnicode(pos).c_str());
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 
@@ -323,24 +330,12 @@ void CMFCLabelerDlg::OnMouseMove(UINT nFlags, CPoint point)
 		str.Format(_T("X,Y:%d,%d"), point.x, point.y);
 		GetDlgItem(IDC_POS)->SetWindowText(str);
 	}
-// 	if (m_bDrawing)
-// 	{
-// 		m_ptRelativeEnd = cv::Point2f(point.x*1.0 / m_Picrect.Width(), point.y *1.0 / m_Picrect.Height());
-// //		string pos = "X,Y:" + int2string((int)(m_ptRelativeEnd.x*m_Picrect.Width())) + "," + int2string((int)(m_ptRelativeEnd.y*m_Picrect.Height()));
-// //		GetDlgItem(IDC_POS)->SetWindowText(ANSIToUnicode(pos).c_str());
-// //		Invalidate(FALSE);
-// 	}
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
 void CMFCLabelerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
-//	m_bDrawing = false;
-//	m_ptRelativeEnd = cv::Point2f(point.x *1.0 / m_Picrect.Width(), point.y*1.0 / m_Picrect.Height());
-//	string pos = "X,Y:" + int2string((int)(m_ptRelativeEnd.x*m_Picrect.Width())) + "," + int2string((int)(m_ptRelativeEnd.y*m_Picrect.Height()));
-//	GetDlgItem(IDC_POS)->SetWindowText(ANSIToUnicode(pos).c_str());
-//	Invalidate(FALSE);
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
 
@@ -479,7 +474,7 @@ void CMFCLabelerDlg::ConvertRel2Tracker()
 	}
 }
 
-bool CMFCLabelerDlg::SaveAnnotationFile(const string xmlannopath)
+bool CMFCLabelerDlg::SaveAnnotationFile(const string annotationname)
 {
 	if (m_img.data)
 	{
@@ -503,7 +498,16 @@ bool CMFCLabelerDlg::SaveAnnotationFile(const string xmlannopath)
 			objects.push_back(object);
 		}
 		af.set_objects(objects);
-		af.save_xml(xmlannopath);
+		if (voc.bsavexml)
+		{
+			string xmlannopath = NewAnnotationdir + "/" + annotationname + ".xml";
+			af.save_xml(xmlannopath);
+		}
+		if (voc.bsavetxt)
+		{
+			string txtannopath = voc.labelsdir +"/"+ annotationname + ".txt";
+			af.save_txt(txtannopath);
+		}
 		return true;
 	}
 	return false;

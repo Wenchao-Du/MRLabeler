@@ -17,6 +17,8 @@ public:
 	string currentlabelingclass;
 	int lastlabeledindex;
 	vector<string>classes;
+	bool bsavexml;
+	bool bsavetxt;
 	void vocinit();
 	int load_file(const string configpath);
 	void save_file(const string configpath);

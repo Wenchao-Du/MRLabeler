@@ -1,40 +1,28 @@
 <?xml version="1.0"?>
 <annotation>
 	<folder>3-1</folder>
-	<filename>000001.jpg</filename>
-	<path>000001.jpg</path>
+	<filename>0102400788908.png</filename>
+	<path>0102400788908.png</path>
 	<source>
 		<database>VOC</database>
 		<annotation>PASCAL VOC2007</annotation>
 	</source>
 	<size>
-		<width>353</width>
-		<height>500</height>
+		<width>695</width>
+		<height>800</height>
 		<depth>3</depth>
 	</size>
 	<segmented>0</segmented>
 	<object>
-		<name>dog</name>
+		<name>face</name>
 		<pose></pose>
 		<truncated>0</truncated>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>48</xmin>
-			<ymin>240</ymin>
-			<xmax>195</xmax>
-			<ymax>371</ymax>
-		</bndbox>
-	</object>
-	<object>
-		<name>person</name>
-		<pose></pose>
-		<truncated>0</truncated>
-		<difficult>0</difficult>
-		<bndbox>
-			<xmin>25</xmin>
-			<ymin>49</ymin>
-			<xmax>351</xmax>
-			<ymax>497</ymax>
+			<xmin>356</xmin>
+			<ymin>250</ymin>
+			<xmax>600</xmax>
+			<ymax>542</ymax>
 		</bndbox>
 	</object>
 </annotation>
