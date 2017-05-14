@@ -62,6 +62,7 @@ void CMFCLabelerDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_imgindex);
 	DDX_Control(pDX, IDC_COMBO_CLASSNAMES, m_comboxclassnames);
+	DDX_Control(pDX, IDC_LIST_FILES, m_listfiles);
 }
 
 BEGIN_MESSAGE_MAP(CMFCLabelerDlg, CDialogEx)
@@ -80,11 +81,20 @@ BEGIN_MESSAGE_MAP(CMFCLabelerDlg, CDialogEx)
 	ON_WM_SETCURSOR()
 	ON_CBN_SELCHANGE(IDC_COMBO_CLASSNAMES, &CMFCLabelerDlg::OnCbnSelchangeComboClassnames)
 	ON_WM_MOUSEWHEEL()
+	ON_LBN_DBLCLK(IDC_LIST_FILES, &CMFCLabelerDlg::OnLbnDblclkListFiles)
+	ON_LBN_SELCHANGE(IDC_LIST_FILES, &CMFCLabelerDlg::OnLbnSelchangeListFiles)
 END_MESSAGE_MAP()
 
 
 // CMFCLabelerDlg 消息处理程序
-
+void CMFCLabelerDlg::InitFileListBox()
+{
+	for (int i = 0; i < m_files.size(); i++)
+	{
+		m_listfiles.AddString(LPCTSTR(ANSIToUnicode(m_files[i].c_str())));
+	}
+	m_listfiles.SetCurSel(0);
+}
 BOOL CMFCLabelerDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -125,6 +135,7 @@ BOOL CMFCLabelerDlg::OnInitDialog()
 	m_currentselectedclassname = ANSIToUnicode(voc.classes[0].c_str());
 	m_imgdir=voc.rootdir + "/" + voc.imagedir;
 	getAllFilesinDir(m_imgdir, m_files);
+	InitFileListBox();
 	ShowImageOfIndex();
 	return TRUE;
 }
@@ -197,7 +208,6 @@ void CMFCLabelerDlg::ShowImageOfIndex()
 	if (m_files.size() > 0)
 	{
 		string filepath = m_imgdir + "/" + m_files[m_imgindex];
-		SetWindowText(ANSIToUnicode(m_files[m_imgindex].c_str()));
 		m_img = cv::imread(filepath);
 		if (m_img.data)
 		{
@@ -344,7 +354,7 @@ void CMFCLabelerDlg::ResizeBottomButton(int nID)
 	CRect rect;
 	GetDlgItem(nID)->GetWindowRect(&rect);
 	ScreenToClient(&rect);
-	rect.top = dlg_rect.bottom -35;
+	rect.top = dlg_rect.bottom -45;
 	rect.bottom = dlg_rect.bottom-5;
 	GetDlgItem(nID)->MoveWindow(rect);
 }
@@ -357,6 +367,39 @@ void CMFCLabelerDlg::ResizeBottomStatic(int nID)
 	rect.bottom = dlg_rect.bottom-10;
 	GetDlgItem(nID)->MoveWindow(rect);
 }
+void CMFCLabelerDlg::ResizeRightEdit(int nID)
+{
+	CRect rect;
+	GetDlgItem(nID)->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	m_nEditWidth = rect.Width();
+	rect.left= dlg_rect.right-rect.Width();
+	rect.right = dlg_rect.right;
+	GetDlgItem(nID)->MoveWindow(rect);
+}
+
+void CMFCLabelerDlg::ResizeRightStatic(int nID)
+{
+	CRect rect;
+	GetDlgItem(nID)->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	rect.left = dlg_rect.right - rect.Width()-m_nEditWidth;
+	rect.right = dlg_rect.right-m_nEditWidth;
+	GetDlgItem(nID)->MoveWindow(rect);
+}
+
+void CMFCLabelerDlg::ResizeRightList(int nID)
+{
+	CRect rect;
+	GetDlgItem(nID)->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	m_nListWidth = rect.Width();
+	rect.left = dlg_rect.right - rect.Width();
+	rect.right = dlg_rect.right;
+	rect.bottom = dlg_rect.bottom - 60;
+	GetDlgItem(nID)->MoveWindow(rect);
+}
+
 void CMFCLabelerDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
@@ -365,14 +408,15 @@ void CMFCLabelerDlg::OnSize(UINT nType, int cx, int cy)
 	ResizeBottomButton(IDC_BUTTON_OPEN);
 	ResizeBottomButton(IDC_BUTTON_ADDRECTANGLE);
 	ResizeBottomStatic(IDC_COMBO_CLASSNAMES);
-	ResizeBottomStatic(IDC_EDIT1);
 	ResizeBottomButton(IDC_BUTTON_PREV);
 	ResizeBottomButton(IDC_BUTTON_NEXT);
 	ResizeBottomStatic(IDC_POS);
-
+	ResizeRightList(IDC_LIST_FILES);
+	ResizeRightEdit(IDC_EDIT1);
+	ResizeRightStatic(IDC_STATIC_LISTS);
 	GetDlgItem(IDC_PIC)->GetWindowRect(&m_Picrect);
 	ScreenToClient(&m_Picrect);
-	m_Picrect.right = dlg_rect.right;
+	m_Picrect.right = dlg_rect.right - m_nListWidth;
 	m_Picrect.bottom = dlg_rect.bottom-60;
  	GetDlgItem(IDC_PIC)->MoveWindow(m_Picrect);
 	if (m_img.data)
@@ -388,8 +432,8 @@ void CMFCLabelerDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
 	lpMMI->ptMinTrackSize.x = 640;
 	lpMMI->ptMinTrackSize.y = 480;
-	lpMMI->ptMaxTrackSize.x = 1600;
-	lpMMI->ptMaxTrackSize.y = 900;
+// 	lpMMI->ptMaxTrackSize.x = 1600;
+// 	lpMMI->ptMaxTrackSize.y = 900;
 	CDialogEx::OnGetMinMaxInfo(lpMMI);
 }
 
@@ -552,4 +596,28 @@ BOOL CMFCLabelerDlg::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	GetDlgItem(IDC_POS)->SetWindowText(str);
 	UpdateView();
 	return CDialogEx::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+
+void CMFCLabelerDlg::OnLbnDblclkListFiles()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	CheckAndSaveAnnotation();
+	m_imgindex = m_listfiles.GetCurSel();
+	if (m_files.size() > 0)
+	{
+		ShowImageOfIndex();
+	}
+}
+
+
+void CMFCLabelerDlg::OnLbnSelchangeListFiles()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	CheckAndSaveAnnotation();
+	m_imgindex = m_listfiles.GetCurSel();
+	if (m_files.size() > 0)
+	{
+		ShowImageOfIndex();
+	}
 }

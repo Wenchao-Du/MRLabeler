@@ -1,8 +1,14 @@
 # MRLabeler
 
-#### VOC YOLO 数据集标注工具
+#### VOC YOLO 数据集标注工具 V1.1
 
-![VOCLabeler](VOCLabeler.png)
+Change log:
+
+1.1 添加列表框支持鼠标选择文件进行标注，添加键盘切换图片功能
+
+1.0 初版发布，支持矩形框拖动功能
+
+![MRLabeler](MRLabeler.png)
 
 ## 编译方法
 

@@ -10,6 +10,7 @@
 #include "vector"
 #include "afxwin.h"
 #include "ColorRectTracker.h"
+#include "afxcmn.h"
 class CRelativeRect
 {
 public:
@@ -31,12 +32,24 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 	void ResizeBottomButton(int nID);
 	void ResizeBottomStatic(int nID);
+	void ResizeRightStatic(int nID);
+	void ResizeRightEdit(int nID);
+	void ResizeRightList(int nID);
+	void InitFileListBox();
+
+	void CheckAndSaveAnnotation();
+
 	void ShowImageOfIndex();
 	void UpdateView();
 	void UpdateTrackers();
 	void LoadAnnotationFile(const string xmlannopath);
 	bool SaveAnnotationFile(const string annotationname);
 	void ConvertRel2Tracker();
+
+	int m_nListWidth;
+	int m_nEditWidth;
+	int m_nBottomPadding;
+
 	DatasetConfig voc;
 	CRect dlg_rect;
 	CRect m_Picrect;
@@ -56,7 +69,7 @@ public:
 	bool m_bModified = true;
 	bool m_bSaveEdit=true;
 	const string NewAnnotationdir = "../MRAnnotation";
-	void CheckAndSaveAnnotation();
+	
 // 实现
 protected:
 	HICON m_hIcon;
@@ -81,4 +94,7 @@ public:
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	afx_msg void OnCbnSelchangeComboClassnames();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	CListBox m_listfiles;
+	afx_msg void OnLbnDblclkListFiles();
+	afx_msg void OnLbnSelchangeListFiles();
 };

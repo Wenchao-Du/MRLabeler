@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<dataset>
+	<name>IBM</name>
+	<year>0712</year>
+	<rootdir>E:/IBM</rootdir>
+	<imagedir>Image</imagedir>
+	<annotationdir>Annotations</annotationdir>
+	<labelsdir>../labels</labelsdir>
+	<currentlabelingclass>car</currentlabelingclass>
+	<lastlabeledindex>0</lastlabeledindex>
+	<bsavexml>1</bsavexml>
+	<bsavetxt>1</bsavetxt>
+	<classes>
+		<class>face</class>
+		<class>mask</class>
+	</classes>
+</dataset>
