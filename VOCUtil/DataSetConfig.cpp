@@ -2,7 +2,7 @@
 #include "pugixml.hpp"
 #include "iostream"
 #include "mrdir.h"
-const string defaultdatasetpath = "../mrconfig.xml";
+const string defaultdatasetpath = "mrconfig.xml";
 
 int DatasetConfig::load_file(const string configpath)
 {
@@ -56,7 +56,10 @@ void DatasetConfig::init()
 	if (exist(defaultdatasetpath.c_str()))
 		load_file(defaultdatasetpath);
 	else
-		vocinit();
+	{
+		mrfaceinit();
+		save_file(defaultdatasetpath);
+	}	
 }
 
 void DatasetConfig::vocinit()
@@ -68,7 +71,7 @@ void DatasetConfig::vocinit()
 	rootdir = "E:/Detection/darknetv2/data/voc/VOCdevkit/VOC2007";
 	annotationdir = "Annotations";
 	imagedir = "JPEGImages";
-	labelsdir = "laebls";
+	labelsdir = "labels";
 	string classnames[] = { "aeroplane", "bicycle", "bird",
 		"boat", "bottle", "bus", "car", "cat", "chair", "cow",
 		"diningtable", "dog", "horse", "motorbike", "person",
@@ -77,6 +80,26 @@ void DatasetConfig::vocinit()
 	bsavetxt = true;
 	classes.clear();
 	for (int i = 0; i < 20; i++)
+	{
+		classes.push_back(classnames[i]);
+	}
+}
+
+void DatasetConfig::mrfaceinit()
+{
+	datasetname = "MRFace";
+	year = "2017";
+	currentlabelingclass = "face";
+	lastlabeledindex = 0;
+	rootdir = "./";
+	annotationdir = "Annotations";
+	imagedir = "images";
+	labelsdir = "labels";
+	string classnames[] = { "face" };
+	bsavexml = true;
+	bsavetxt = true;
+	classes.clear();
+	for (int i = 0; i < 1; i++)
 	{
 		classes.push_back(classnames[i]);
 	}

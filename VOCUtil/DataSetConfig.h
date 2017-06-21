@@ -20,6 +20,7 @@ public:
 	bool bsavexml;
 	bool bsavetxt;
 	void vocinit();
+	void mrfaceinit();
 	int load_file(const string configpath);
 	void save_file(const string configpath);
 private:

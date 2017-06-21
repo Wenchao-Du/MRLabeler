@@ -1,5 +1,9 @@
-labels/
+Debug/
+Release/
 x64/
+MRLabeler/Debug/
+MRLabeler/Release/
 MRLabeler/x64/
 VOC2YOLOConverter/x64/
-MRAnnotation/
+MRLabeler使用说明.docx
+clean.bat

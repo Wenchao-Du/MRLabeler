@@ -11,7 +11,7 @@
 	<bsavexml>1</bsavexml>
 	<bsavetxt>1</bsavetxt>
 	<classes>
-		<class>face</class>
-		<class>mask</class>
+		<class>car</class>
+		<class>bike</class>
 	</classes>
 </dataset>

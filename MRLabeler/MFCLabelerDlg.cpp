@@ -83,6 +83,7 @@ BEGIN_MESSAGE_MAP(CMFCLabelerDlg, CDialogEx)
 	ON_WM_MOUSEWHEEL()
 	ON_LBN_DBLCLK(IDC_LIST_FILES, &CMFCLabelerDlg::OnLbnDblclkListFiles)
 	ON_LBN_SELCHANGE(IDC_LIST_FILES, &CMFCLabelerDlg::OnLbnSelchangeListFiles)
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -180,7 +181,7 @@ void CMFCLabelerDlg::OnPaint()
 	{
 		if (!m_img.empty())
 		{
-			DrawMat2Wnd(GetDlgItem(IDC_PIC), m_showimg);
+			DrawMat2CWnd(GetDlgItem(IDC_PIC), m_showimg);
 		}
 		UpdateTrackers();
 		CDialogEx::OnPaint();
@@ -252,6 +253,7 @@ void CMFCLabelerDlg::OnBnClickedButtonPrev()
 	{
 		CheckAndSaveAnnotation();
 		m_imgindex = (m_imgindex - 1 + m_files.size()) % m_files.size();
+		m_listfiles.SetCurSel(m_imgindex);
 		ShowImageOfIndex();
 	}
 }
@@ -263,7 +265,7 @@ void CMFCLabelerDlg::CheckAndSaveAnnotation()
 		string annotationname =  m_files[m_imgindex].substr(0,m_files[m_imgindex].length()-4);
 		SaveAnnotationFile(annotationname);
 	}
-//	m_bModified = false;
+	m_bModified = false;
 }
 
 void CMFCLabelerDlg::OnBnClickedButtonNext()
@@ -273,6 +275,7 @@ void CMFCLabelerDlg::OnBnClickedButtonNext()
 	{
 		CheckAndSaveAnnotation();
 		m_imgindex = (m_imgindex + 1) % m_files.size();
+		m_listfiles.SetCurSel(m_imgindex);
 		ShowImageOfIndex();
 	}
 }
@@ -331,7 +334,6 @@ void CMFCLabelerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
-
 void CMFCLabelerDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
 	if (PtInRect(m_Picrect, point))
@@ -342,13 +344,11 @@ void CMFCLabelerDlg::OnMouseMove(UINT nFlags, CPoint point)
 	}
 	CDialogEx::OnMouseMove(nFlags, point);
 }
-
 void CMFCLabelerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
-
 void CMFCLabelerDlg::ResizeBottomButton(int nID)
 {
 	CRect rect;
@@ -377,7 +377,6 @@ void CMFCLabelerDlg::ResizeRightEdit(int nID)
 	rect.right = dlg_rect.right;
 	GetDlgItem(nID)->MoveWindow(rect);
 }
-
 void CMFCLabelerDlg::ResizeRightStatic(int nID)
 {
 	CRect rect;
@@ -387,7 +386,6 @@ void CMFCLabelerDlg::ResizeRightStatic(int nID)
 	rect.right = dlg_rect.right-m_nEditWidth;
 	GetDlgItem(nID)->MoveWindow(rect);
 }
-
 void CMFCLabelerDlg::ResizeRightList(int nID)
 {
 	CRect rect;
@@ -399,10 +397,11 @@ void CMFCLabelerDlg::ResizeRightList(int nID)
 	rect.bottom = dlg_rect.bottom - 60;
 	GetDlgItem(nID)->MoveWindow(rect);
 }
-
 void CMFCLabelerDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
+	if (cx <= 0 || cy <= 0)
+		return;
 	if (GetDlgItem(IDC_PIC) == NULL)return;
  	GetClientRect(&dlg_rect);
 	ResizeBottomButton(IDC_BUTTON_OPEN);
@@ -425,8 +424,6 @@ void CMFCLabelerDlg::OnSize(UINT nType, int cx, int cy)
 	}
 	UpdateView();
 }
-
-
 void CMFCLabelerDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
@@ -436,7 +433,6 @@ void CMFCLabelerDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 // 	lpMMI->ptMaxTrackSize.y = 900;
 	CDialogEx::OnGetMinMaxInfo(lpMMI);
 }
-
 BOOL CMFCLabelerDlg::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO:  在此添加专用代码和/或调用基类
@@ -444,6 +440,7 @@ BOOL CMFCLabelerDlg::PreTranslateMessage(MSG* pMsg)
 	{
 		if (m_trackers.size() > 0)
 		{
+			m_bModified = true;
 			m_trackers.pop_back();
 			m_relrects.pop_back();
 			UpdateView();
@@ -465,7 +462,6 @@ BOOL CMFCLabelerDlg::PreTranslateMessage(MSG* pMsg)
 	}
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
-
 void CMFCLabelerDlg::UpdateView()
 {
 	ConvertRel2Tracker();
@@ -481,7 +477,6 @@ void CMFCLabelerDlg::OnBnClickedButtonAddrectangle()
 	m_bDragMode = false;
 }
 
-
 BOOL CMFCLabelerDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
@@ -489,13 +484,14 @@ BOOL CMFCLabelerDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	{
 		for (int i = 0; i < m_trackers.size(); i++)
 		{
-			if (m_trackers[i].SetCursor(this, nHitTest))
-				return TRUE;
+#if _WIN64
+ 			if (m_trackers[i].SetCursor(this, nHitTest))
+ 				return TRUE;
+#endif
 		}
 	}
 	return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
 }
-
 
 void CMFCLabelerDlg::OnCbnSelchangeComboClassnames()
 {
@@ -544,12 +540,18 @@ bool CMFCLabelerDlg::SaveAnnotationFile(const string annotationname)
 		af.set_objects(objects);
 		if (voc.bsavexml)
 		{
-			string xmlannopath = NewAnnotationdir + "/" + annotationname + ".xml";
+			string annodir = voc.rootdir + "/" + voc.annotationdir;
+			if (!EXISTS(annodir.c_str()))
+				MKDIR(annodir.c_str());
+			string xmlannopath = annodir + "/" + annotationname + ".xml";
 			af.save_xml(xmlannopath);
 		}
 		if (voc.bsavetxt)
 		{
-			string txtannopath = voc.labelsdir +"/"+ annotationname + ".txt";
+			string labeldir = voc.rootdir + "/" + voc.labelsdir;
+			if (!EXISTS(labeldir.c_str()))
+				MKDIR(labeldir.c_str());
+				string txtannopath = labeldir + "/" + annotationname + ".txt";
 			af.save_txt(txtannopath);
 		}
 		return true;
@@ -559,6 +561,7 @@ bool CMFCLabelerDlg::SaveAnnotationFile(const string annotationname)
 
 void CMFCLabelerDlg::LoadAnnotationFile(const string xmlannopath)
 {
+	m_bDragMode = false;
 	AnnotationFile af;
 	if (af.load_file(xmlannopath))
 	{
@@ -598,7 +601,6 @@ BOOL CMFCLabelerDlg::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	return CDialogEx::OnMouseWheel(nFlags, zDelta, pt);
 }
 
-
 void CMFCLabelerDlg::OnLbnDblclkListFiles()
 {
 	// TODO:  在此添加控件通知处理程序代码
@@ -610,7 +612,6 @@ void CMFCLabelerDlg::OnLbnDblclkListFiles()
 	}
 }
 
-
 void CMFCLabelerDlg::OnLbnSelchangeListFiles()
 {
 	// TODO:  在此添加控件通知处理程序代码
@@ -620,4 +621,11 @@ void CMFCLabelerDlg::OnLbnSelchangeListFiles()
 	{
 		ShowImageOfIndex();
 	}
+}
+
+void CMFCLabelerDlg::OnClose()
+{
+	// TODO:  在此添加消息处理程序代码和/或调用默认值
+	CheckAndSaveAnnotation();
+	CDialogEx::OnClose();
 }

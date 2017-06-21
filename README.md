@@ -1,14 +1,18 @@
 # MRLabeler
 
-#### VOC YOLO 数据集标注工具 V1.1
+#### VOC YOLO 数据集标注工具 V1.2
 
 Change log:
+
+1.2 添加帮助文件支持
 
 1.1 添加列表框支持鼠标选择文件进行标注，添加键盘切换图片功能
 
 1.0 初版发布，支持矩形框拖动功能
 
-![MRLabeler](MRLabeler.png)
+## 快速上手
+
+参考[MRLabeler使用说明.pdf](MRLabeler使用说明.pdf)
 
 ## 编译方法
 
@@ -26,7 +30,9 @@ Change log:
 
 ```
 <?xml version="1.0"?>
+
 <dataset>
+
 	<name>IBM</name>数据集名称，自己定义
 	<year>0712</year>数据集年代，为支持VOC而用
 	<rootdir>E:/IBM</rootdir>数据集存放的目录

@@ -60,15 +60,14 @@ public:
 	cv::Mat m_showimg;
 	CComboBox m_comboxclassnames;
 	CString m_currentselectedclassname;
-	std::string m_imgdir;
+	std::string m_imgdir="images";
 	std::vector<std::string>m_files;
 	int m_imgindex;
 
 	double m_zoomratio = 1.0f;
 	cv::Point2f m_ptRoomCenter;
-	bool m_bModified = true;
+	bool m_bModified = false;
 	bool m_bSaveEdit=true;
-	const string NewAnnotationdir = "../MRAnnotation";
 	
 // й╣ож
 protected:
@@ -97,4 +96,5 @@ public:
 	CListBox m_listfiles;
 	afx_msg void OnLbnDblclkListFiles();
 	afx_msg void OnLbnSelchangeListFiles();
+	afx_msg void OnClose();
 };
