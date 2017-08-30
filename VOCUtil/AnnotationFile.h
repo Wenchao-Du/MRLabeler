@@ -10,8 +10,8 @@ class Object
 public:
 	string name;
 	string pose;
-	bool truncated;
-	bool difficult;
+	bool truncated=0;
+	bool difficult=0;
 #if OUTPUT_OBJECT_POSSIBILITY
 	double possibility=1;
 #endif

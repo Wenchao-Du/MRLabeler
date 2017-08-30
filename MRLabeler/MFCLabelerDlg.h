@@ -11,6 +11,13 @@
 #include "afxwin.h"
 #include "ColorRectTracker.h"
 #include "afxcmn.h"
+#include "string"
+// const std::string databasename = "Market2017";
+// const std::string rootdir = "../../Datasets";
+const std::string databasename = "Face2017";
+const std::string rootdir = "./";
+const std::string databasedir = rootdir + "/" + databasename;
+
 class CRelativeRect
 {
 public:
@@ -36,16 +43,14 @@ public:
 	void ResizeRightEdit(int nID);
 	void ResizeRightList(int nID);
 	void InitFileListBox();
-
 	void CheckAndSaveAnnotation();
-
 	void ShowImageOfIndex();
 	void UpdateView();
 	void UpdateTrackers();
 	void LoadAnnotationFile(const string xmlannopath);
 	bool SaveAnnotationFile(const string annotationname);
 	void ConvertRel2Tracker();
-
+	void Init(const string dir="./");
 	int m_nListWidth;
 	int m_nEditWidth;
 	int m_nBottomPadding;

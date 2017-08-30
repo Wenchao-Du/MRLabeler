@@ -90,6 +90,11 @@ END_MESSAGE_MAP()
 // CMFCLabelerDlg 消息处理程序
 void CMFCLabelerDlg::InitFileListBox()
 {
+	m_listfiles.ResetContent();
+	sort(m_files.begin(), m_files.end(), [](const string &lhs, const string& rhs)
+	{
+		return string2int(lhs) < string2int(rhs);
+	});
 	for (int i = 0; i < m_files.size(); i++)
 	{
 		m_listfiles.AddString(LPCTSTR(ANSIToUnicode(m_files[i].c_str())));
@@ -127,18 +132,26 @@ BOOL CMFCLabelerDlg::OnInitDialog()
 	GetDlgItem(IDC_PIC)->GetWindowRect(&m_Picrect);
 	ScreenToClient(&m_Picrect);
 	// TODO:  在此添加额外的初始化代码
+	Init(databasedir);
+	return TRUE;
+}
+
+void CMFCLabelerDlg::Init(const string dir)
+{
+	voc.init(dir);
+	m_comboxclassnames.ResetContent();
 	for (int i = 0; i < voc.classes.size(); i++)
 	{
 		auto str = ANSIToUnicode(voc.classes[i].c_str());
 		m_comboxclassnames.AddString(str);
 	}
-	m_comboxclassnames.SetCurSel(0);
-	m_currentselectedclassname = ANSIToUnicode(voc.classes[0].c_str());
-	m_imgdir=voc.rootdir + "/" + voc.imagedir;
-	getAllFilesinDir(m_imgdir, m_files);
+	m_comboxclassnames.SetCurSel(m_imgindex);
+	if (voc.classes.size()>0)
+		m_currentselectedclassname = ANSIToUnicode(voc.classes[0].c_str());
+	m_imgdir = voc.datasetdir + "/" + voc.imagedir;
+	m_files = getAllFilesinDir(m_imgdir);
 	InitFileListBox();
 	ShowImageOfIndex();
-	return TRUE;
 }
 
 void CMFCLabelerDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -214,7 +227,7 @@ void CMFCLabelerDlg::ShowImageOfIndex()
 		{
 			m_relrects.clear();
 			m_trackers.clear();
-			string annotationfilepath = voc.rootdir + "/" + voc.annotationdir + "/" + m_files[m_imgindex].substr(0, m_files[m_imgindex].length() - 4) + ".xml";
+			string annotationfilepath = voc.datasetdir + "/" + voc.annotationdir + "/" + m_files[m_imgindex].substr(0, m_files[m_imgindex].length() - 4) + ".xml";
 			LoadAnnotationFile(annotationfilepath);
 			cv::resize(m_img, m_showimg, cv::Size(m_Picrect.Width(), m_Picrect.Height()));
 			UpdateView();
@@ -239,10 +252,7 @@ void CMFCLabelerDlg::OnBnClickedButtonOpen()
 	LPITEMIDLIST lp = SHBrowseForFolder(&bi);
 	if (lp && SHGetPathFromIDList(lp, szPath))
 	{
-		m_imgdir = UnicodeToANSI(szPath);
-		getAllFilesinDir(m_imgdir, m_files,"*.jpg");
-		m_imgindex = 0;
-		ShowImageOfIndex();
+		Init(UnicodeToANSI(szPath));
 	}
 }
 

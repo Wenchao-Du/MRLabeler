@@ -1,14 +1,18 @@
 # MRLabeler
 
-#### VOC YOLO 数据集标注工具 V1.2
+#### VOC YOLO 数据集标注工具 V1.3
 
-Change log:
+![](http://i.imgur.com/qsQV5Es.png)
 
-1.2 添加帮助文件支持
+### Change log:
 
-1.1 添加列表框支持鼠标选择文件进行标注，添加键盘切换图片功能
+* 1.3 添加由Video自动生成标注工程
 
-1.0 初版发布，支持矩形框拖动功能
+* 1.2 添加帮助文件支持
+
+* 1.1 添加列表框支持鼠标选择文件进行标注，添加键盘切换图片功能
+
+* 1.0 初版发布，支持矩形框拖动功能
 
 ## 快速上手
 
@@ -20,7 +24,11 @@ Change log:
 
 * 2.用VS2013打开MRLabeler.sln编译即可
 
-本项目从[mrconfig.xml](mrconfig.xml)加载要标注数据集的相关信息，并将原标注一并显示，通过鼠标选中并拖动框的位置，点击下一张(>按钮)或者上一张(<按钮)保存。
+本项目严格按照VOC和YOLO方式组织，各文件夹统一放置到一个目录下，记为DATASETDIR，其中images文件夹用于存放原始图片，Annotations文件夹用于存放VOC格式的标注，labels用于存放YOLO格式的标注，mrconfig.xml作为DATASETDIR数据集的配置文件。
+
+![](http://i.imgur.com/A9qkTlH.png)
+
+本项目从加载要标注数据集的相关信息，并将原标注一并显示，通过鼠标选中并拖动框的位置，点击下一张(>按钮)或者上一张(<按钮)保存。
 
 你也可以直接在编辑框输入要跳转的索引，直接跳到要标注的位置。
 
@@ -29,16 +37,14 @@ Change log:
 数据集配置文件中各个字段的含义如下：
 
 ```
-<?xml version="1.0"?>
 
 <dataset>
 
-	<name>IBM</name>数据集名称，自己定义
-	<year>0712</year>数据集年代，为支持VOC而用
-	<rootdir>E:/IBM</rootdir>数据集存放的目录
-	<imagedir>Image</imagedir>数据集图片文件夹路径，相对于rootdir的路径
+	<name>Face</name>数据集名称，自己定义
+	<year>2017</year>数据集年代，为支持VOC而用
+	<imagedir>images</imagedir>数据集图片文件夹路径，相对于rootdir的路径
 	<annotationdir>Annotations</annotationdir>原标注文件夹路径，相对于rootdir路径
-	<labelsdir>../labels</labelsdir>YOLO格式标注文件夹路径，相对于本项目的路径
+	<labelsdir>labels</labelsdir>YOLO格式标注文件夹路径，相对于本项目的路径
 	<currentlabelingclass>car</currentlabelingclass>当前要标注的类别名称
 	<lastlabeledindex>0</lastlabeledindex>最后标注的类别索引
 	<bsavexml>1</bsavexml>是否保存VOC格式标注，默认保存
@@ -48,4 +54,5 @@ Change log:
 		<class>mask</class>
 	</classes>
 </dataset>
+
 ```

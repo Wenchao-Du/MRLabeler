@@ -1,20 +1,19 @@
 #include "mrdir.h"
 #include "mropencv.h"
 #include "mrutil.h"
-#include "../VOCUtil/DataSetConfig.h"
-#include "../VOCUtil/AnnotationFile.h"
+#include "DataSetConfig.h"
+#include "AnnotationFile.h"
 
 void convert2ssdannotation(DatasetConfig &voc)
 {
-	vector<string>files;
-	getAllFilesinDir(voc.rootdir + "/" + voc.imagedir, files);
+	vector<string>files = getAllFilesinDir(voc.datasetdir + "/");
 	AnnotationFile::set_labelmaps(voc.classes);
 	for (int imgindex = 0; imgindex < files.size(); imgindex++)
 	{
 		AnnotationFile af;
 		cout << files[imgindex] << endl;
-		string filepath = voc.rootdir + "/" + voc.imagedir + "/" + files[imgindex];
-		string annotationfilepath = voc.rootdir + "/" + voc.annotationdir + "/" + files[imgindex].substr(0, files[imgindex].length() - 4) + ".xml";
+		string filepath = voc.datasetdir + "/" + voc.imagedir + "/" + files[imgindex];
+		string annotationfilepath = voc.datasetdir + "/" + voc.annotationdir + "/" + files[imgindex].substr(0, files[imgindex].length() - 4) + ".xml";
 		af.load_file(annotationfilepath);
 		string newannopath = "labels/" + files[imgindex].substr(0, files[imgindex].length() - 4) + ".txt";
 		af.save_txt(newannopath);
@@ -23,19 +22,18 @@ void convert2ssdannotation(DatasetConfig &voc)
 
 void ProcessFiles(DatasetConfig &voc)
 {
-	vector<string>files;
-	getAllFilesinDir(voc.rootdir+"/" + voc.imagedir, files);
+	vector<string>files=getAllFilesinDir(voc.datasetdir+"/" + voc.imagedir);
 	AnnotationFile::set_labelmaps(voc.classes);
 	int imgindex = 0;
 	if (files.size() == 0)
 	{
-		cout << "There is no img file in " << voc.rootdir + "/" + voc.imagedir << endl;
+		cout << "There is no img file in " << voc.datasetdir + "/" + voc.imagedir << endl;
 		return;
 	}		
 	while (true)
 	{
-		string filepath = voc.rootdir + "/" + voc.imagedir + "/" + files[imgindex];
-		string annotationfilepath = voc.rootdir + "/" + voc.annotationdir + "/" + files[imgindex].substr(0,files[imgindex].length()-4)+".xml";	
+		string filepath = voc.datasetdir + "/" + voc.imagedir + "/" + files[imgindex];
+		string annotationfilepath = voc.datasetdir + "/" + voc.annotationdir + "/" + files[imgindex].substr(0, files[imgindex].length() - 4) + ".xml";
 		Mat img = imread(filepath);
 		if (!img.data)
 			break;

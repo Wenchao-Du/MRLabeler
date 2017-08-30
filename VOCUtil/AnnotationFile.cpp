@@ -50,8 +50,8 @@ void AnnotationFile::save_xml(const string xmlannotationfilepath)
 	rootnode.append_child("filename").text().set(filename.c_str());
 	rootnode.append_child("path").text().set(filename.c_str());
 	pugi::xml_node sourcenode = rootnode.append_child("source");
-	sourcenode.append_child("database").text().set("VOC");
-	sourcenode.append_child("annotation").text().set("PASCAL VOC2007");
+	sourcenode.append_child("database").text().set(database.c_str());
+	sourcenode.append_child("annotation").text().set(annotation.c_str());
 	pugi::xml_node sizenode = rootnode.append_child("size");
 	sizenode.append_child("width").text().set(int2string(width).c_str());
 	sizenode.append_child("height").text().set(int2string(height).c_str());

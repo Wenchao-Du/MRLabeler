@@ -2,8 +2,7 @@
 #include "pugixml.hpp"
 #include "iostream"
 #include "mrdir.h"
-const string defaultdatasetpath = "mrconfig.xml";
-
+#include "AnnotationFile.h"
 int DatasetConfig::load_file(const string configpath)
 {
 	pugi::xml_document doc;
@@ -11,7 +10,7 @@ int DatasetConfig::load_file(const string configpath)
 	pugi::xml_node rootnode = doc.child("dataset");
 	datasetname = rootnode.child("name").text().get();
 	year = rootnode.child("year").text().get();
-	rootdir = rootnode.child("rootdir").text().get();
+//	rootdir = rootnode.child("rootdir").text().get();
 	imagedir = rootnode.child("imagedir").text().get();
 	annotationdir = rootnode.child("annotationdir").text().get();
 	labelsdir = rootnode.child("labelsdir").text().get();
@@ -27,6 +26,7 @@ int DatasetConfig::load_file(const string configpath)
 	{
 		classes.push_back(it.text().get());
 	}
+	AnnotationFile::set_labelmaps(classes);
 	return 0;
 }
 void DatasetConfig::save_file(const string configpath)
@@ -35,7 +35,7 @@ void DatasetConfig::save_file(const string configpath)
 	pugi::xml_node rootnode = doc.append_child("dataset");
 	rootnode.append_child("name").text().set(datasetname.c_str());
 	rootnode.append_child("year").text().set(year.c_str());	
-	rootnode.append_child("rootdir").text().set(rootdir.c_str());
+//	rootnode.append_child("rootdir").text().set(rootdir.c_str());
 	rootnode.append_child("imagedir").text().set(imagedir.c_str());
 	rootnode.append_child("annotationdir").text().set(annotationdir.c_str());
 	rootnode.append_child("labelsdir").text().set(labelsdir.c_str());
@@ -51,15 +51,17 @@ void DatasetConfig::save_file(const string configpath)
 	doc.save_file(configpath.c_str());
 }
 
-void DatasetConfig::init()
+void DatasetConfig::init(const string dir)
 {
-	if (exist(defaultdatasetpath.c_str()))
-		load_file(defaultdatasetpath);
-	else
-	{
-		mrfaceinit();
-		save_file(defaultdatasetpath);
-	}	
+	rootdir = dir.substr(0,dir.rfind("/"));
+	datasetdir = dir;
+	std::string configpath = dir + "/" + configfile;
+	load(configpath);
+}
+void DatasetConfig::load(const string configpath)
+{
+	if (EXISTS(configpath.c_str()))
+		load_file(configpath);
 }
 
 void DatasetConfig::vocinit()
@@ -68,7 +70,6 @@ void DatasetConfig::vocinit()
 	year = "0712";
 	currentlabelingclass = "car";
 	lastlabeledindex = 0;
-	rootdir = "E:/Detection/darknetv2/data/voc/VOCdevkit/VOC2007";
 	annotationdir = "Annotations";
 	imagedir = "JPEGImages";
 	labelsdir = "labels";
@@ -87,15 +88,33 @@ void DatasetConfig::vocinit()
 
 void DatasetConfig::mrfaceinit()
 {
-	datasetname = "MRFace";
+	datasetname = "Face";
 	year = "2017";
-	currentlabelingclass = "face";
+	string classnames[] = { "face" };
 	lastlabeledindex = 0;
-	rootdir = "./";
+	currentlabelingclass = classnames[lastlabeledindex];
 	annotationdir = "Annotations";
 	imagedir = "images";
 	labelsdir = "labels";
-	string classnames[] = { "face" };
+	bsavexml = true;
+	bsavetxt = true;
+	classes.clear();
+	for (int i = 0; i < 1; i++)
+	{
+		classes.push_back(classnames[i]);
+	}
+}
+
+void DatasetConfig::marketinit()
+{
+	datasetname = "Market";
+	year = "2017";
+	string classnames[] = { "bumf", "hetao" };
+	lastlabeledindex = 0;
+	currentlabelingclass = classnames[lastlabeledindex];
+	annotationdir = "Annotations";
+	imagedir = "images";
+	labelsdir = "labels";
 	bsavexml = true;
 	bsavetxt = true;
 	classes.clear();

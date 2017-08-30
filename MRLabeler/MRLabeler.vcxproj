@@ -74,6 +74,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>D:\opencv\build\x86\vc12\staticlib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\opencv\build\include;$(IncludePath)</IncludePath>
+    <OutDir>../bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -81,6 +83,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>D:\opencv\build\x86\vc12\staticlib;D:\opencv\build\x86\vc12\lib;F:\VR\OpenGL4VS\lib\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\opencv\build\include;$(IncludePath)</IncludePath>
+    <OutDir>../bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
