@@ -12,10 +12,8 @@
 #include "ColorRectTracker.h"
 #include "afxcmn.h"
 #include "string"
-// const std::string databasename = "Market2017";
-// const std::string rootdir = "../../Datasets";
-const std::string databasename = "Face2017";
-const std::string rootdir = "./";
+const std::string databasename = "Mobile2017";
+const std::string rootdir = "../../Datasets";
 const std::string databasedir = rootdir + "/" + databasename;
 
 class CRelativeRect

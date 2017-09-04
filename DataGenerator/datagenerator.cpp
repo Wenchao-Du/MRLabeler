@@ -4,25 +4,25 @@
 #include "fstream"
 #include "random"
 #include <chrono>
-using namespace std;
 #include "AnnotationFile.h"
 #include "DataSetConfig.h"
 #if _WIN32
-const string rootdir = "../../Datasets";
+const std::string rootdir = "../../Datasets";
 #else
-const string rootdir = "/home/yanhe/data";
+const std::string rootdir = "/home/yanhe/data";
 #endif
-const string datasetdir = rootdir + "/" + "Market2017";
-const string videodir = datasetdir + "/" + "videos";
-const string bgsdir = datasetdir + "/" + "bgs";
-vector<string>bgsfiles;
+const std::string datasetname = "Mobile2017";
+const std::string datasetdir = rootdir + "/" + datasetname;
+const std::string videodir = datasetdir + "/" + "videos";
+const std::string bgsdir = rootdir + "/" + "bgs";
+std::vector<std::string>bgsfiles;
 const bool userandbg = true;
 DatasetConfig ds;
 
 #if _WIN32
-const int numofrand = 2;
+const int numofrand = 1;
 #else
-const int numofrand = 1000;
+const int numofrand = 200;
 #endif
 
 int startindex = 0;
@@ -30,8 +30,7 @@ int startindex = 0;
 int generatefromvideo(const string videopath, const string label)
 {
 	cv::VideoCapture capture(videopath);
-	cv::Mat img;
-	cv::Mat gray, thd;
+	cv::Mat img,gray, thd;
 	while (true)
 	{
 		capture >> img;
@@ -39,7 +38,7 @@ int generatefromvideo(const string videopath, const string label)
 			break;
 		cv::cvtColor(img, gray, CV_BGR2GRAY);
 		cv::threshold(gray, thd, 0, 255, CV_THRESH_OTSU);
-		vector<vector<Point>>contours;
+		std::vector<std::vector<cv::Point>>contours;
 		cv::findContours(thd, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
 		int maxcontourindex = 0, maxarea = 0;
@@ -99,20 +98,44 @@ int generatefromvideo(const string videopath, const string label)
 					txtpath = txtpath.substr(0, txtpath.length() - 3) + "txt";
 					af.save_txt(txtpath);
 				}
-				cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" << startindex << ":" << filename;
+				cout << "\r" <<filename<<"             ";
 			}
+		}
+		else
+		{
+			std::string filename = int2string(startindex) + ".jpg";//
+			af.filename = filename;
+			saveimg = img.clone();
+			std::string filepath = ds.datasetdir + "/" + ds.imagedir + "/" + filename;
+			cv::imwrite(filepath, saveimg);
+			if (ds.bsavexml)
+			{
+				string xmlpath = ds.datasetdir + "/" + ds.annotationdir + "/" + filename;
+				xmlpath = xmlpath.substr(0, xmlpath.length() - 3) + "xml";
+				af.save_xml(xmlpath);
+			}
+			if (ds.bsavetxt)
+			{
+				string txtpath = ds.datasetdir + "/" + ds.labelsdir + "/" + filename;
+				txtpath = txtpath.substr(0, txtpath.length() - 3) + "txt";
+				af.save_txt(txtpath);
+			}
+			cout << "\r" << filename << "             ";
 		}
 		startindex++;
 	}
 	return 0;
 }
 
-int generatefromdir(const string dir, const string label)
+int generatefromdir(const std::string dir, const std::string label)
 {
 	auto files = getAllFilesinDir(dir);
+	cout << dir << endl;
+#pragma omp parallel for
 	for (int i = 0; i < files.size(); i++)
 	{
 		string videpath = dir + "/" + files[i];
+		cout << files[i] << endl;
 		generatefromvideo(videpath, label);
 	}
 	return 0;
@@ -124,58 +147,109 @@ int generatedata()
 	auto subdirs = getAllSubdirs(videodir);
 	for (int i = 0; i < subdirs.size(); i++)
 	{
-		string subdir = videodir + "/" + subdirs[i];
+		std::string subdir = videodir + "/" + subdirs[i];
 		generatefromdir(subdir, subdirs[i]);
 	}
+	cout << endl;
 	return 0;
 }
 
-int generatetrainvaltxt(const float trainratio=0.9,const float testratio=0.1)
+int generatetrainvaltxt(const float trainratio=0.7,const float valratio=0.2,const float testratio=0.1)
 {
-	vector<vector<string>>filebylabels;
+	std::vector<std::vector<std::string>>filebylabels;
 	for (int i = 0; i < AnnotationFile::labelmap.size(); i++)
 	{
-		vector<string>files1label;
+		std::vector<std::string>files1label;
 		filebylabels.push_back(files1label);
 	}
-	string imgdir = ds.datasetdir + "/" + ds.imagedir;
+	std::string imgdir = ds.datasetdir + "/" + ds.imagedir;
 	auto files = getAllFilesinDir(imgdir);
 	for (int i = 0; i < files.size(); i++)
 	{
 		AnnotationFile af;
-		string annopath = ds.datasetdir+"/"+ds.annotationdir + "/" + files[i];
+		std::string annopath = ds.datasetdir + "/" + ds.annotationdir + "/" + files[i];
 		annopath = annopath.substr(0, annopath.length() - 3) + "xml";
 		af.load_file(annopath);
 		int label = AnnotationFile::labelmap[af.objects[0].name];
 		filebylabels[label].push_back(files[i]);
 	}
-	ofstream ftrain(ds.datasetdir+"/trainval.txt");
-	ofstream ftest(ds.datasetdir+"/test.txt");
-	for (int i = 0; i < filebylabels.size(); i++)
+	if (ds.bsavetxt)
 	{
-		auto file1label = filebylabels[i];
-		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-		shuffle(file1label.begin(), file1label.end(), std::default_random_engine(seed));
-		for (int j = 0; j < file1label.size(); j++)
+		ofstream ftrainval(ds.datasetdir + "/trainval.txt");
+		ofstream ftest(ds.datasetdir + "/test.txt");
+		for (int i = 0; i < filebylabels.size(); i++)
 		{
-			string filepath = "/home/yanhe/data/Market2017/images/" + file1label[j];
-			if (j < trainratio*file1label.size())
+			auto file1label = filebylabels[i];
+			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+			shuffle(file1label.begin(), file1label.end(), std::default_random_engine(seed));
+			for (int j = 0; j < file1label.size(); j++)
 			{
-				ftrain << filepath << endl;
-			}
-			else if (j < (trainratio + testratio)*file1label.size())
-			{
-				ftest << filepath << endl;
+				string filepath = "/home/yanhe/data/" + datasetname + "/images/" + file1label[j];
+				if (j < (trainratio + valratio)*file1label.size())
+				{
+					ftrainval << filepath << endl;
+				}
+				else if (j < (trainratio + valratio + testratio)*file1label.size())
+				{
+					ftest << filepath << endl;
+				}
 			}
 		}
+		ftrainval.close();
+		ftest.close();
 	}
-	ftrain.close();
-	ftest.close();
+	if (ds.bsavexml)
+	{
+		std::string imagesetsdir = ds.datasetdir + "/" + "ImageSets";
+		if (!EXISTS(imagesetsdir.c_str()))
+		{
+			MKDIR(imagesetsdir.c_str());
+		}
+		std::string maindir = imagesetsdir + "/" + "Main";
+		if (!EXISTS(maindir.c_str()))
+		{
+			MKDIR(maindir.c_str());
+		}
+		ofstream ftrain(maindir + "/train.txt");
+		ofstream fval(maindir + "/val.txt");
+		ofstream ftrainval(maindir +"/trainval.txt");
+		ofstream ftest(maindir + "/test.txt");
+		for (int i = 0; i < filebylabels.size(); i++)
+		{
+			auto file1label = filebylabels[i];
+			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+			shuffle(file1label.begin(), file1label.end(), std::default_random_engine(seed));
+			for (int j = 0; j < file1label.size(); j++)
+			{
+				string filepath = file1label[j];
+				filepath = filepath.substr(0, filepath.length() - 4);
+				if (j < trainratio*file1label.size())
+				{
+					ftrain << filepath << endl;
+					ftrainval << filepath << endl;
+				}
+				else if (j < (trainratio + valratio)*file1label.size())
+				{
+					fval << filepath << endl;
+					ftrainval << filepath << endl;
+				}
+				else if (j < (trainratio + valratio + testratio)*file1label.size())
+				{
+					ftest << filepath << endl;
+				}
+			}
+		}
+		ftrain.close();
+		fval.close();
+		ftrainval.close();
+		ftest.close();
+	}
 	return 0;
 }
 
 int main()
 {
+	srand((unsigned)time(0));
 	ds.init(datasetdir);
 	generatedata();
 	generatetrainvaltxt();

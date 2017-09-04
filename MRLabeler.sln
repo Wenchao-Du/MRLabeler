@@ -51,6 +51,7 @@ Global
 		{C6F68579-108C-4922-BD74-9E4D63974BA0}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{C6F68579-108C-4922-BD74-9E4D63974BA0}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{C6F68579-108C-4922-BD74-9E4D63974BA0}.Release|Win32.ActiveCfg = Release|Win32
+		{C6F68579-108C-4922-BD74-9E4D63974BA0}.Release|Win32.Build.0 = Release|Win32
 		{C6F68579-108C-4922-BD74-9E4D63974BA0}.Release|x64.ActiveCfg = Release|x64
 		{C6F68579-108C-4922-BD74-9E4D63974BA0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection

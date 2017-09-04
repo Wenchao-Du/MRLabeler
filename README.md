@@ -1,18 +1,16 @@
 # MRLabeler
 
-#### VOC YOLO 数据集标注工具 V1.3
+#### VOC YOLO 数据集标注工具 V1.2
 
-![](http://i.imgur.com/qsQV5Es.png)
+Change log:
 
-### Change log:
+1.3 添加由Video自动生成标注工程
 
-* 1.3 添加由Video自动生成标注工程
+1.2 添加帮助文件支持
 
-* 1.2 添加帮助文件支持
+1.1 添加列表框支持鼠标选择文件进行标注，添加键盘切换图片功能
 
-* 1.1 添加列表框支持鼠标选择文件进行标注，添加键盘切换图片功能
-
-* 1.0 初版发布，支持矩形框拖动功能
+1.0 初版发布，支持矩形框拖动功能
 
 ## 快速上手
 
@@ -40,9 +38,9 @@
 
 <dataset>
 
-	<name>Face</name>数据集名称，自己定义
-	<year>2017</year>数据集年代，为支持VOC而用
-	<imagedir>images</imagedir>数据集图片文件夹路径，相对于rootdir的路径
+	<name>IBM</name>数据集名称，自己定义
+	<year>0712</year>数据集年代，为支持VOC而用
+	<imagedir>Image</imagedir>数据集图片文件夹路径，相对于rootdir的路径
 	<annotationdir>Annotations</annotationdir>原标注文件夹路径，相对于rootdir路径
 	<labelsdir>labels</labelsdir>YOLO格式标注文件夹路径，相对于本项目的路径
 	<currentlabelingclass>car</currentlabelingclass>当前要标注的类别名称

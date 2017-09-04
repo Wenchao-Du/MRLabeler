@@ -550,7 +550,7 @@ bool CMFCLabelerDlg::SaveAnnotationFile(const string annotationname)
 		af.set_objects(objects);
 		if (voc.bsavexml)
 		{
-			string annodir = voc.rootdir + "/" + voc.annotationdir;
+			string annodir = voc.datasetdir + "/" + voc.annotationdir;
 			if (!EXISTS(annodir.c_str()))
 				MKDIR(annodir.c_str());
 			string xmlannopath = annodir + "/" + annotationname + ".xml";
@@ -558,7 +558,7 @@ bool CMFCLabelerDlg::SaveAnnotationFile(const string annotationname)
 		}
 		if (voc.bsavetxt)
 		{
-			string labeldir = voc.rootdir + "/" + voc.labelsdir;
+			string labeldir = voc.datasetdir + "/" + voc.labelsdir;
 			if (!EXISTS(labeldir.c_str()))
 				MKDIR(labeldir.c_str());
 				string txtannopath = labeldir + "/" + annotationname + ".txt";
