@@ -1,6 +1,6 @@
 # MRLabeler
 
-#### VOC YOLO 数据集标注工具 V1.2
+#### VOC YOLO 数据集标注工具 V1.3
 
 Change log:
 
