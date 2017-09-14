@@ -2,6 +2,8 @@
 
 #### VOC YOLO 数据集标注工具 V1.3
 
+![](https://i.imgur.com/5YDypuW.png)
+
 Change log:
 
 1.3 添加由Video自动生成标注工程

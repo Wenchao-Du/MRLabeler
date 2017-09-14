@@ -227,8 +227,7 @@ void CMFCLabelerDlg::ShowImageOfIndex()
 		{
 			m_relrects.clear();
 			m_trackers.clear();
-			string annotationfilepath = voc.datasetdir + "/" + voc.annotationdir + "/" + m_files[m_imgindex].substr(0, m_files[m_imgindex].length() - 4) + ".xml";
-			LoadAnnotationFile(annotationfilepath);
+			LoadAnnotationFile();
 			cv::resize(m_img, m_showimg, cv::Size(m_Picrect.Width(), m_Picrect.Height()));
 			UpdateView();
 			UpdateData(FALSE);
@@ -569,17 +568,34 @@ bool CMFCLabelerDlg::SaveAnnotationFile(const string annotationname)
 	return false;
 }
 
-void CMFCLabelerDlg::LoadAnnotationFile(const string xmlannopath)
+void CMFCLabelerDlg::LoadAnnotationFile()
 {
 	m_bDragMode = false;
 	AnnotationFile af;
-	if (af.load_file(xmlannopath))
+	bool bloaded = false;
+	if (m_bloadfromxml)
+	{
+		string annotationfilepath = voc.datasetdir + "/" + voc.annotationdir + "/" + m_files[m_imgindex].substr(0, m_files[m_imgindex].length() - 4) + ".xml";
+		bloaded=af.load_xml(annotationfilepath);
+	}
+	else
+	{
+		string annotationfilepath = voc.datasetdir + "/" + voc.labelsdir + "/" + m_files[m_imgindex].substr(0, m_files[m_imgindex].length() - 4) + ".txt";
+		af.width = m_img.cols;
+		af.height = m_img.rows;
+		af.depth = m_img.channels();
+		bloaded = af.load_txt(annotationfilepath);
+	}
+	if (bloaded)
 	{
 		for (int i = 0; i < af.objects.size(); i++)
 		{
 			auto object = af.objects[i];
 			CRelativeRect rr;
-			rr.strName =object.name.c_str();
+			if (m_bloadfromxml)
+				rr.strName = object.name.c_str();
+			else
+				rr.strName = voc.classes[string2int(object.name)].c_str();
 			rr.ptStart.x = object.xmin *1.0 / af.width;
 			rr.ptStart.y = object.ymin *1.0 / af.height;
 			rr.ptEnd.x = object.xmax *1.0 / af.width;

@@ -2,8 +2,9 @@
 #include "pugixml.hpp"
 #include "fstream"
 #include "mrutil.h"
+#include "DataSetConfig.h"
 using namespace std;
-bool AnnotationFile::load_file(const string annotationfilepath)
+bool AnnotationFile::load_xml(const string annotationfilepath)
 {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(annotationfilepath.c_str());
@@ -41,7 +42,27 @@ bool AnnotationFile::load_file(const string annotationfilepath)
 	}
 	return true;
 }
-
+bool AnnotationFile::load_txt(const string annotationfilepath)
+{
+	ifstream fin(annotationfilepath);
+	if (!fin)
+		return false;
+	int label;
+	float xcenter, ycenter, wr, hr;
+	objects.clear();
+	while (!fin.eof())
+	{
+		fin >> label >> xcenter >> ycenter >> wr >> hr;
+		Object object;
+		object.name = int2string(label);
+		object.xmin = (xcenter - 0.5*wr)*width;
+		object.ymin = (ycenter - 0.5*hr)*height;
+		object.xmax = (xcenter + 0.5*wr)*width;
+		object.ymax = (ycenter + 0.5*hr)*height;
+		objects.push_back(object);
+	}
+	return true;
+}
 void AnnotationFile::save_xml(const string xmlannotationfilepath)
 {
 	pugi::xml_document doc;

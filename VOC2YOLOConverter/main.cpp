@@ -14,7 +14,7 @@ void convert2ssdannotation(DatasetConfig &voc)
 		cout << files[imgindex] << endl;
 		string filepath = voc.datasetdir + "/" + voc.imagedir + "/" + files[imgindex];
 		string annotationfilepath = voc.datasetdir + "/" + voc.annotationdir + "/" + files[imgindex].substr(0, files[imgindex].length() - 4) + ".xml";
-		af.load_file(annotationfilepath);
+		af.load_xml(annotationfilepath);
 		string newannopath = "labels/" + files[imgindex].substr(0, files[imgindex].length() - 4) + ".txt";
 		af.save_txt(newannopath);
 	}
@@ -38,7 +38,7 @@ void ProcessFiles(DatasetConfig &voc)
 		if (!img.data)
 			break;
 		AnnotationFile af;
-		if (af.load_file(annotationfilepath))
+		if (af.load_xml(annotationfilepath))
 		{
 			af.drawannotation2Image(img);
 			cout << files[imgindex] << endl;

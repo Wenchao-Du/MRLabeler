@@ -35,8 +35,9 @@ public:
 	void set_height(const int height){this->height = height;};
 	void set_depth(const int depth){ this->depth = depth; };
 	void set_objects(const vector<Object>&objects){ this->objects = objects; };
-	bool load_file(const string annotationfilepath);
+	bool load_xml(const string annotationfilepath);
 	void save_xml(const string xmlannotationfilepath);
+	bool load_txt(const string txtannotationfilepath);
 	void save_txt(const string txtannotationfilepath);
 	void drawannotation2Image(cv::Mat &src);
 };

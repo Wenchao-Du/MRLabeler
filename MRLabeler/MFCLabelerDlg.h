@@ -14,6 +14,9 @@
 #include "string"
 const std::string databasename = "Mobile2017";
 const std::string rootdir = "../../Datasets";
+
+// const std::string databasename = "WiderFace";
+// const std::string rootdir = "D:/Face/Datasets/";
 const std::string databasedir = rootdir + "/" + databasename;
 
 class CRelativeRect
@@ -45,7 +48,7 @@ public:
 	void ShowImageOfIndex();
 	void UpdateView();
 	void UpdateTrackers();
-	void LoadAnnotationFile(const string xmlannopath);
+	void LoadAnnotationFile();
 	bool SaveAnnotationFile(const string annotationname);
 	void ConvertRel2Tracker();
 	void Init(const string dir="./");
@@ -71,7 +74,7 @@ public:
 	cv::Point2f m_ptRoomCenter;
 	bool m_bModified = false;
 	bool m_bSaveEdit=true;
-	
+	bool m_bloadfromxml = true;
 // й╣ож
 protected:
 	HICON m_hIcon;
