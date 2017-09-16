@@ -2,7 +2,6 @@
 <dataset>
 	<name>Face</name>
 	<year>2017</year>
-	<rootdir>../data/Face2017</rootdir>
 	<imagedir>images</imagedir>
 	<annotationdir>Annotations</annotationdir>
 	<labelsdir>labels</labelsdir>

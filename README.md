@@ -39,7 +39,6 @@ Change log:
 ```
 
 <dataset>
-
 	<name>IBM</name>数据集名称，自己定义
 	<year>0712</year>数据集年代，为支持VOC而用
 	<imagedir>Image</imagedir>数据集图片文件夹路径，相对于rootdir的路径
