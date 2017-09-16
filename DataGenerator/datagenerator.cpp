@@ -2,10 +2,9 @@
 #include "mropencv.h"
 #include "mrutil.h"
 #include "fstream"
-#include "random"
-#include <chrono>
 #include "AnnotationFile.h"
 #include "DataSetConfig.h"
+#include "time.h"
 #if _WIN32
 const std::string rootdir = "../../Datasets";
 const int numofbgs = 1;
@@ -48,17 +47,6 @@ struct TransformParam
 	int rotateoutplaneid = 0;
 	int bgid = 0;
 };
-
-int generatetransformimage0(cv::Mat &img, cv::Mat &mask, cv::Rect &r, TransformParam tf)
-{
-	cv::resize(img, img, cv::Size(100,256));
-	r.x = 0;
-	r.y = 0;
-	r.width = img.cols;
-	r.height= img.rows;
-	mask = 255*cv::Mat::ones(img.size(), CV_8UC1);
-	return 0;
-}
 
 Rect ConvertRect(Rect Ori, Mat homography, int rows, int cols, int flag = 0) //homography 3x3æÿ’Û flag==0 Õ∏ ”±‰ªª flag==1 ∑¬…‰±‰ªª
 {
@@ -478,99 +466,6 @@ int generatefromvideos()
 	return 0;
 }
 
-int generatetrainvaltxt(const float trainratio=0.7,const float valratio=0.2,const float testratio=0.1)
-{
-	std::vector<std::vector<std::string>>filebylabels;
-	for (int i = 0; i < AnnotationFile::labelmap.size(); i++)
-	{
-		std::vector<std::string>files1label;
-		filebylabels.push_back(files1label);
-	}
-	std::string imgdir = ds.datasetdir + "/" + ds.imagedir;
-	auto files = getAllFilesinDir(imgdir);
-	for (int i = 0; i < files.size(); i++)
-	{
-		AnnotationFile af;
-		std::string annopath = ds.datasetdir + "/" + ds.annotationdir + "/" + files[i];
-		annopath = annopath.substr(0, annopath.length() - 3) + "xml";
-		af.load_xml(annopath);
-		int label = AnnotationFile::labelmap[af.objects[0].name];
-		filebylabels[label].push_back(files[i]);
-	}
-	if (ds.bsavetxt)
-	{
-		ofstream ftrainval(ds.datasetdir + "/trainval.txt");
-		ofstream ftest(ds.datasetdir + "/test.txt");
-		for (int i = 0; i < filebylabels.size(); i++)
-		{
-			auto file1label = filebylabels[i];
-			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-			shuffle(file1label.begin(), file1label.end(), std::default_random_engine(seed));
-			for (int j = 0; j < file1label.size(); j++)
-			{
-				string filepath = datasetprefix + datasetname + "/images/" + file1label[j];
-				if (j < (trainratio + valratio)*file1label.size())
-				{
-					ftrainval << filepath << endl;
-				}
-				else if (j < (trainratio + valratio + testratio)*file1label.size())
-				{
-					ftest << filepath << endl;
-				}
-			}
-		}
-		ftrainval.close();
-		ftest.close();
-	}
-	if (ds.bsavexml)
-	{
-		std::string imagesetsdir = ds.datasetdir + "/" + "ImageSets";
-		if (!EXISTS(imagesetsdir.c_str()))
-		{
-			MKDIR(imagesetsdir.c_str());
-		}
-		std::string maindir = imagesetsdir + "/" + "Main";
-		if (!EXISTS(maindir.c_str()))
-		{
-			MKDIR(maindir.c_str());
-		}
-		ofstream ftrain(maindir + "/train.txt");
-		ofstream fval(maindir + "/val.txt");
-		ofstream ftrainval(maindir +"/trainval.txt");
-		ofstream ftest(maindir + "/test.txt");
-		for (int i = 0; i < filebylabels.size(); i++)
-		{
-			auto file1label = filebylabels[i];
-			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-			shuffle(file1label.begin(), file1label.end(), std::default_random_engine(seed));
-			for (int j = 0; j < file1label.size(); j++)
-			{
-				string filepath = file1label[j];
-				filepath = filepath.substr(0, filepath.length() - 4);
-				if (j < trainratio*file1label.size())
-				{
-					ftrain << filepath << endl;
-					ftrainval << filepath << endl;
-				}
-				else if (j < (trainratio + valratio)*file1label.size())
-				{
-					fval << filepath << endl;
-					ftrainval << filepath << endl;
-				}
-				else if (j < (trainratio + valratio + testratio)*file1label.size())
-				{
-					ftest << filepath << endl;
-				}
-			}
-		}
-		ftrain.close();
-		fval.close();
-		ftrainval.close();
-		ftest.close();
-	}
-	return 0;
-}
-
 int generatefromorigimage(const string dir,const string imagefilename, const string label)
 {
 	cv::Mat img, gray, thd;
@@ -786,14 +681,6 @@ int generatefromfgimage(const string dir, const string imagefilename, const stri
 							cv::resize(bgMat, bgMat, cv::Size(640, 480));
 							int offestX = rand() % max(10, (640 - targetimg.cols - 1));//
 							int offsetY = rand() % max(10, (480 - targetimg.rows - 1));
-// 							cv::Mat bigmask=cv::Mat::zeros(bgMat.size(),CV_8UC1);
-// 							for (int m = 0; m < targetimg.rows; m++)
-// 							{
-// 								for (int n = 0; n < targetimg.cols; n++)
-// 								{
-// 									bigmask.at<uchar>(m + offsetY, n + offestX) = mask.at<uchar>(m, n);
-// 								}
-// 							}
 							r.x=r.x + offestX;
 							r.y=r.y + offsetY;
 							if (r.x < 0)
@@ -827,8 +714,6 @@ int generatefromfgimage(const string dir, const string imagefilename, const stri
 							objects.push_back(object);
 							af.objects = objects;
 							string filepath = ds.datasetdir + "/" + ds.imagedir + "/" + filename;
-							if (!EXISTS((ds.datasetdir + "/" + "images").c_str()))
-								MKDIR((ds.datasetdir + "/" + "images").c_str());
 							cv::imwrite(filepath, saveimg);
 							if (ds.bsavexml)
 							{
@@ -867,10 +752,6 @@ int generatefrmimagedir(const std::string dir, const std::string label)
 
 int generatefromimages(const std::string dir=fgsimgdir)
 {
-	if (!EXISTS(badimgdir.c_str()))
-	{
-		MKDIR(badimgdir.c_str());
-	}
 	bgsfiles = getAllFilesinDir(bgsdir);
 	auto subdirs = getAllSubdirs(dir);
 	for (int i = 0; i < subdirs.size(); i++)
@@ -881,12 +762,26 @@ int generatefromimages(const std::string dir=fgsimgdir)
 	cout << endl;
 	return 0;
 }
-int main()
+
+void init()
 {
 	srand((unsigned)time(0));
 	ds.init(datasetdir);
+	if (!EXISTS((ds.datasetdir + "/" + ds.imagedir).c_str()))
+		MKDIR((ds.datasetdir + "/" + ds.imagedir).c_str());
+	if (!EXISTS((ds.datasetdir + "/" + ds.labelsdir).c_str()))
+		MKDIR((ds.datasetdir + "/" + ds.labelsdir).c_str());
+	if (!EXISTS((ds.datasetdir + "/" + ds.annotationdir).c_str()))
+		MKDIR((ds.datasetdir + "/" + ds.annotationdir).c_str());
+// 	if (!EXISTS(badimgdir.c_str()))
+// 		MKDIR(badimgdir.c_str());
+}
+
+int main()
+{
+	init();
 //	generatefromvideos();
 	generatefromimages();//origimagedir
-	generatetrainvaltxt();
+	ds.generatetrainvaltxt(datasetprefix);
 	return 0;
 }

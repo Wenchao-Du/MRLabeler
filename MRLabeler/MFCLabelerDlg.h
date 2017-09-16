@@ -103,4 +103,5 @@ public:
 	afx_msg void OnLbnDblclkListFiles();
 	afx_msg void OnLbnSelchangeListFiles();
 	afx_msg void OnClose();
+	afx_msg void OnBnClickedButtonGeneratetxt();
 };

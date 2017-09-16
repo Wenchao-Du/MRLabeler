@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CMFCLabelerDlg, CDialogEx)
 	ON_LBN_DBLCLK(IDC_LIST_FILES, &CMFCLabelerDlg::OnLbnDblclkListFiles)
 	ON_LBN_SELCHANGE(IDC_LIST_FILES, &CMFCLabelerDlg::OnLbnSelchangeListFiles)
 	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDC_BUTTON_GENERATETXT, &CMFCLabelerDlg::OnBnClickedButtonGeneratetxt)
 END_MESSAGE_MAP()
 
 
@@ -654,4 +655,11 @@ void CMFCLabelerDlg::OnClose()
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
 	CheckAndSaveAnnotation();
 	CDialogEx::OnClose();
+}
+
+
+void CMFCLabelerDlg::OnBnClickedButtonGeneratetxt()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	voc.generatetrainvaltxt();
 }
